@@ -1,0 +1,78 @@
+# Training Configuration for Phi-2 GRPO Fine-tuning
+
+# Model Configuration
+model:
+  name: "microsoft/phi-2"
+  trust_remote_code: true
+
+# Dataset Configuration
+dataset:
+  name: "OpenAssistant/oasst1"
+  language: "en"  # Filter for English conversations
+  max_samples: null  # Set to a number to limit dataset size, null for full dataset
+  train_split: "train"
+  val_split: "validation"
+  val_size: 0.1  # Fraction of data to use for validation
+
+# Training Hyperparameters
+training:
+  output_dir: "./outputs"
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 8  # Must be divisible by 8 (number of generations) for GRPO
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_steps: 100
+  max_steps: -1  # -1 to use num_train_epochs instead
+  max_seq_length: 512
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+  save_total_limit: 3
+  eval_strategy: "steps"  # Changed from evaluation_strategy (deprecated)
+  save_strategy: "steps"
+  load_best_model_at_end: true
+  metric_for_best_model: "loss"
+  greater_is_better: false
+  fp16: true
+  bf16: false  # Must be false to avoid NotImplementedError with gradient scaling
+  gradient_checkpointing: true
+  optim: "paged_adamw_8bit"
+  report_to: "tensorboard"  # Options: "tensorboard", "wandb", "none"
+
+# LoRA Configuration
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: ["q_proj", "k_proj", "v_proj", "dense"]  # Phi-2 attention modules
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Quantization Configuration
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+
+# GRPO Configuration
+grpo:
+  # Note: group_size is not currently a parameter of GRPOConfig
+  # GRPO uses default group size internally
+  # If you need to configure group size, check TRL documentation for latest API
+
+# Generation Configuration (for evaluation)
+generation:
+  max_new_tokens: 256
+  temperature: 0.7
+  top_p: 0.9
+  do_sample: true
+
+# Hugging Face Hub Configuration
+hub:
+  push_to_hub: false
+  hub_model_id: null  # Set to your HF username/model-name
+  hub_strategy: "every_save"
+  hub_token: null  # Will use HF_TOKEN environment variable if set

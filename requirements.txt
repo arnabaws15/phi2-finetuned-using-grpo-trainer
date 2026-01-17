@@ -1,0 +1,37 @@
+# Core ML Libraries
+# Compatible versions for T4 GPU 4-bit quantization
+torch>=2.0.0
+transformers>=4.36.0
+datasets>=2.14.0
+accelerate>=0.25.0
+
+# Quantization and LoRA (critical for 4-bit training)
+bitsandbytes>=0.41.0
+peft>=0.7.0
+
+# Training and RLHF
+trl>=0.7.0
+
+# UI and Deployment
+gradio>=4.0.0
+
+# Utilities
+numpy>=1.24.0
+pandas>=2.0.0
+pyyaml>=6.0
+tqdm>=4.65.0
+huggingface-hub>=0.19.0
+
+# Jupyter for Colab
+jupyter>=1.0.0
+ipywidgets>=8.0.0
+ipykernel>=6.25.0
+
+# Optional but recommended
+wandb>=0.15.0
+tensorboard>=2.14.0
+
+# Note: For T4 GPU compatibility:
+# - Use float16 (NOT bfloat16) for compute dtype
+# - bf16=False in training config
+# - torch_dtype=torch.float16 when loading models
